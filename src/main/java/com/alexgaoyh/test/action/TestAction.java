@@ -22,6 +22,7 @@ import com.alexgaoyh.test.entity.Test;
 import com.alexgaoyh.test.service.TestService;
 import com.alexgaoyh.common.service.BaseService;
 import com.alexgaoyh.common.util.JsonUtil;
+import com.alexgaoyh.redis.util.RedisClient;
 
 /**
  * 
@@ -42,6 +43,10 @@ public class TestAction extends BaseController<Test> {
 		this.baseService = baseService;
 	}
 
+	
+	@Resource
+	private RedisClient<String, String> redisClient;
+	
 	@RequestMapping(value = "login")
 	public ModelAndView login() {
 		// 发送邮件demo
@@ -95,6 +100,13 @@ public class TestAction extends BaseController<Test> {
 		Test te = baseService.get(pid);
 		System.out.println(JSONObject.valueToString(te));
 		return JsonUtil.object2String(te);
+	}
+	
+	
+	@RequestMapping(value = "testRedis")
+	public void testRedis(){
+		redisClient.add("dyf", "23423423");
+		System.out.println(redisClient.get("dyf"));
 	}
 
 }
