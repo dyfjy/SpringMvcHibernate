@@ -10,8 +10,5 @@
 </head>	
 <body>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/js/jquery/jquery-1.4.1.js"></script>
-	<h2>Hello World!</h2>
-	<h2>${test}</h2>
-	<h2>${sysmanUser.name}</h2>
 </body>
 </html>
