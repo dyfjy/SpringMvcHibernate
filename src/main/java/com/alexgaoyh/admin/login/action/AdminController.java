@@ -17,9 +17,15 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.crypto.RandomNumberGenerator;
+import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Md5Hash;
+import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ByteSource;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +41,8 @@ import com.alexgaoyh.common.vo.TreeNode;
 import com.alexgaoyh.sysman.admin.entity.SysmanResource;
 import com.alexgaoyh.sysman.admin.entity.SysmanUser;
 import com.alexgaoyh.sysman.admin.service.SysmanResourceService;
+import com.alexgaoyh.sysman.admin.service.SysmanUserService;
+import com.github.zhangkaitao.shiro.spring.PasswordHelper;
 
 @Controller
 @RequestMapping(value="admin")
@@ -42,8 +50,12 @@ public class AdminController {
 
 	private static final Logger LOGGER = Logger.getLogger(AdminController.class);
 	
+	 private RandomNumberGenerator randomNumberGenerator = new SecureRandomNumberGenerator();
 	@Resource(name = "sysmanResourceServiceImpl")
 	private SysmanResourceService sysmanResourceService;
+	
+	@Resource(name = "sysmanUserServiceImpl")
+	private SysmanUserService  sysmanUserService;
 	
 	/**
 	 * 登陆页
@@ -124,22 +136,33 @@ public class AdminController {
 		String captcha = request.getParameter("Captcha");
 		String exitCode = (String) request.getSession().getAttribute(CaptchaConstant.KEY_CAPTCHA);
 		
-		if (null != captcha && captcha.equalsIgnoreCase(exitCode)) {
+//		if (null != captcha && captcha.equalsIgnoreCase(exitCode)) {
+			if (true) {
 			captchaStatus = true;
 			
 			String username = request.getParameter("userName");
 			String password = request.getParameter("password");
 			String rememberMe = request.getParameter("rememberMe");
 			
-			Md5Hash md5Hash = new Md5Hash(password);
+			SysmanUser user = sysmanUserService.findByName(username);
+			if(user == null) {
+	            throw new UnknownAccountException();//没找到帐号
+	        }
+//			Md5Hash md5Hash = new Md5Hash(password);
+//		        String newPassword = new SimpleHash(
+//		        		"md5",
+//		        		password,
+//		                ByteSource.Util.bytes(username + user.getSalt()),
+//		                2).toHex();
+//		        user.setPassword(newPassword);
 			
-			UsernamePasswordToken token = new UsernamePasswordToken(username, md5Hash.toHex(), Boolean.parseBoolean(rememberMe));
+			UsernamePasswordToken token = new UsernamePasswordToken(username, password, Boolean.parseBoolean(rememberMe));
 			
 			try {
 				Subject subject = SecurityUtils.getSubject();
 				subject.login(token);
 				token.clear();
-				SysmanUser user = (SysmanUser) subject.getPrincipal();
+				user = (SysmanUser) subject.getPrincipal();
 				subject.getSession().setAttribute("adminCurrentUser", user);
 				loginStatus = true;
 				
@@ -165,7 +188,18 @@ public class AdminController {
 
 		return mav;
 	}
-	
+	 public void encryptPassword(SysmanUser user) {
+
+	        user.setSalt(randomNumberGenerator.nextBytes().toHex());
+
+	        String newPassword = new SimpleHash(
+	        		"md5",
+	                user.getPassword(),
+	                ByteSource.Util.bytes(user.getCredentialsSalt()),
+	                2).toHex();
+
+	        user.setPassword(newPassword);
+	    }
 	
 	/**
 	 * shiro 登出方法

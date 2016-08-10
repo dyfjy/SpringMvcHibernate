@@ -86,18 +86,19 @@
     <filter-name>shiroFilter</filter-name>
     <url-pattern>/admin/*</url-pattern>
   </filter-mapping>
-  <servlet>
   
 <!--   验证码 -->
   
-    <servlet-name>CaptchaServlet</servlet-name>
-    <servlet-class>com.alexgaoyh.admin.login.shiro.captcha.servlet.CaptchaServlet</servlet-class>
-    <load-on-startup>10</load-on-startup>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>CaptchaServlet</servlet-name>
-    <url-pattern>/servlet/captchaCode</url-pattern>
-  </servlet-mapping>
+<!--   <servlet> -->
+<!--     <servlet-name>CaptchaServlet</servlet-name> -->
+<!--     <servlet-class>com.alexgaoyh.admin.login.shiro.captcha.servlet.CaptchaServlet</servlet-class> -->
+<!--     <load-on-startup>10</load-on-startup> -->
+<!--   </servlet> -->
+<!--   <servlet-mapping> -->
+<!--     <servlet-name>CaptchaServlet</servlet-name> -->
+<!--     <url-pattern>/servlet/captchaCode</url-pattern> -->
+<!--   </servlet-mapping> -->
+
 <!--   <servlet> -->
 <!--     <servlet-name>UeditorServlet</servlet-name> -->
 <!--     <servlet-class>com.baidu.ueditor.servlet.uploadServlet</servlet-class> -->
